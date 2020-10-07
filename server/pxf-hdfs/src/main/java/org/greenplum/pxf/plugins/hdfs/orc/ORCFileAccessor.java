@@ -19,11 +19,13 @@ import org.greenplum.pxf.api.filter.TreeTraverser;
 import org.greenplum.pxf.api.filter.TreeVisitor;
 import org.greenplum.pxf.api.model.Accessor;
 import org.greenplum.pxf.api.model.BasePlugin;
+import org.greenplum.pxf.api.utilities.ColumnDescriptor;
 import org.greenplum.pxf.plugins.hdfs.utilities.HdfsUtilities;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class ORCFileAccessor extends BasePlugin implements Accessor {
@@ -47,21 +49,31 @@ public class ORCFileAccessor extends BasePlugin implements Accessor {
     private static final TreeVisitor PRUNER = new SupportedOperatorPruner(SUPPORTED_OPERATORS);
     private static final TreeTraverser TRAVERSER = new TreeTraverser();
 
-    private Reader fileReader;
     private int batchIndex;
     private long totalRowsRead;
     private long totalReadTimeInNanos;
+    private Reader fileReader;
     private RecordReader rowIterator;
     private VectorizedRowBatch batch;
+    private List<ColumnDescriptor> columnDescriptors;
+
+    @Override
+    public void afterPropertiesSet() {
+        super.afterPropertiesSet();
+        columnDescriptors = context.getTupleDescription();
+    }
 
     @Override
     public boolean openForRead() throws Exception {
         Path file = new Path(context.getDataSource());
         FileSplit fileSplit = HdfsUtilities.parseFileSplit(context);
 
-        fileReader = OrcFile.createReader(file, OrcFile.readerOptions(configuration));
+        fileReader = OrcFile.createReader(file, OrcFile
+                .readerOptions(configuration)
+                .filesystem(file.getFileSystem(configuration)));
+
         // Pick the schema we want to read using schema evolution
-        TypeDescription readSchema = buildReadSchema();
+        TypeDescription readSchema = buildReadSchema(fileReader.getSchema());
         // Get the record filter in case of predicate push-down
         SearchArgument searchArgument = getSearchArgument(context.getFilterString());
 
@@ -87,8 +99,8 @@ public class ORCFileAccessor extends BasePlugin implements Accessor {
     public OneRow readNextObject() throws Exception {
         final Instant start = Instant.now();
         final boolean hasNextBatch = rowIterator.nextBatch(batch);
-        final long nanos = Duration.between(start, Instant.now()).toNanos();
-        totalReadTimeInNanos += nanos;
+        totalReadTimeInNanos += Duration.between(start, Instant.now()).toNanos();
+        ;
         if (hasNextBatch) {
             totalRowsRead += batch.size;
             return new OneRow(new LongWritable(batchIndex++), batch);
@@ -119,18 +131,18 @@ public class ORCFileAccessor extends BasePlugin implements Accessor {
     }
 
     @Override
-    public boolean openForWrite() throws Exception {
-        return false;
+    public boolean openForWrite() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean writeNextObject(OneRow onerow) throws Exception {
-        return false;
+    public boolean writeNextObject(OneRow onerow) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public void closeForWrite() throws Exception {
-
+    public void closeForWrite() {
+        throw new UnsupportedOperationException();
     }
 
     private SearchArgument getSearchArgument(String filterString) throws Exception {
@@ -138,19 +150,28 @@ public class ORCFileAccessor extends BasePlugin implements Accessor {
             return null;
         }
 
-        ORCSearchArgumentBuilder searchArgumentBuilder = new ORCSearchArgumentBuilder(context.getTupleDescription(), configuration);
+        ORCSearchArgumentBuilder searchArgumentBuilder =
+                new ORCSearchArgumentBuilder(columnDescriptors, configuration);
 
         // Parse the filter string into a expression tree Node
         Node root = new FilterParser().parse(filterString);
         // Prune the parsed tree with valid supported operators and then
-        // traverse the pruned tree with the searchArgumentBuilder to produce a SearchArgument for ORC
+        // traverse the pruned tree with the searchArgumentBuilder to produce a
+        // SearchArgument for ORC
         TRAVERSER.traverse(root, PRUNER, searchArgumentBuilder);
 
-        SearchArgument.Builder filterBuilder = searchArgumentBuilder.getFilterBuilder();
-        return filterBuilder.build();
+        // Build the SearchArgument object
+        return searchArgumentBuilder.getFilterBuilder().build();
     }
 
-    private TypeDescription buildReadSchema() {
-        return TypeDescription.fromString("struct<z:int,y:string,x:bigint>");
+    private TypeDescription buildReadSchema(TypeDescription originalSchema) {
+        TypeDescription struct = TypeDescription.createStruct();
+
+        columnDescriptors
+                .stream()
+                .filter(ColumnDescriptor::isProjected);
+
+
+        return struct;
     }
 }
