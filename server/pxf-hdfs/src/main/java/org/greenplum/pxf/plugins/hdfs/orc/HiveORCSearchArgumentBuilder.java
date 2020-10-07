@@ -1,4 +1,4 @@
-package org.greenplum.pxf.plugins.hive;
+package org.greenplum.pxf.plugins.hdfs.orc;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;

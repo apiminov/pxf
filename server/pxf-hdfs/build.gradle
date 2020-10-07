@@ -62,6 +62,10 @@ dependencies {
     implementation("com.fasterxml.woodstox:woodstox-core:5.0.3") { transitive = false }
     implementation("org.codehaus.woodstox:stax2-api:3.1.4")      { transitive = false }
 
+    // ORC dependencies
+    implementation("org.apache.orc:orc-core:${orcVersion}")      { transitive = false }
+    implementation("org.apache.hive:hive-common:${hiveVersion}") { transitive = false }
+
     /*******************************
      * Dependencies for Supported Hadoop-Compatible Filesystems
      *******************************/

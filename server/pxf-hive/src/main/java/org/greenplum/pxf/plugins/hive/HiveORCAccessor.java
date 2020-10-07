@@ -40,6 +40,7 @@ import org.greenplum.pxf.api.utilities.ColumnDescriptor;
 import org.greenplum.pxf.api.utilities.EnumAggregationType;
 import org.greenplum.pxf.api.utilities.SpringContext;
 import org.greenplum.pxf.api.utilities.Utilities;
+import org.greenplum.pxf.plugins.hdfs.orc.HiveORCSearchArgumentBuilder;
 import org.greenplum.pxf.plugins.hive.utilities.HiveUtilities;
 
 import java.util.ArrayList;

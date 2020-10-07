@@ -1,4 +1,4 @@
-package org.greenplum.pxf.plugins.hive;
+package org.greenplum.pxf.plugins.hdfs.orc;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.ql.io.sarg.SearchArgument;
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.greenplum.pxf.plugins.hive.HiveORCAccessor.SUPPORTED_OPERATORS;
+import static org.greenplum.pxf.plugins.hdfs.orc.ORCFileAccessor.SUPPORTED_OPERATORS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
