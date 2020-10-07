@@ -138,7 +138,7 @@ public class ORCFileAccessor extends BasePlugin implements Accessor {
             return null;
         }
 
-        HiveORCSearchArgumentBuilder searchArgumentBuilder = new HiveORCSearchArgumentBuilder(context.getTupleDescription(), configuration);
+        ORCSearchArgumentBuilder searchArgumentBuilder = new ORCSearchArgumentBuilder(context.getTupleDescription(), configuration);
 
         // Parse the filter string into a expression tree Node
         Node root = new FilterParser().parse(filterString);

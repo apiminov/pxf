@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class HiveORCSearchArgumentBuilderTest {
+public class ORCSearchArgumentBuilderTest {
 
     private static final TreeVisitor PRUNER = new SupportedOperatorPruner(SUPPORTED_OPERATORS);
     private static final TreeTraverser TRAVERSER = new TreeTraverser();
@@ -149,8 +149,8 @@ public class HiveORCSearchArgumentBuilderTest {
     }
 
     private SearchArgument.Builder helper(String filterString, List<ColumnDescriptor> columnDescriptors) throws Exception {
-        HiveORCSearchArgumentBuilder treeVisitor =
-                new HiveORCSearchArgumentBuilder(columnDescriptors, new Configuration());
+        ORCSearchArgumentBuilder treeVisitor =
+                new ORCSearchArgumentBuilder(columnDescriptors, new Configuration());
         // Parse the filter string into a expression tree Node
         Node root = new FilterParser().parse(filterString);
         TRAVERSER.traverse(root, PRUNER, treeVisitor);

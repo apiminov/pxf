@@ -40,7 +40,7 @@ import org.greenplum.pxf.api.utilities.ColumnDescriptor;
 import org.greenplum.pxf.api.utilities.EnumAggregationType;
 import org.greenplum.pxf.api.utilities.SpringContext;
 import org.greenplum.pxf.api.utilities.Utilities;
-import org.greenplum.pxf.plugins.hdfs.orc.HiveORCSearchArgumentBuilder;
+import org.greenplum.pxf.plugins.hdfs.orc.ORCSearchArgumentBuilder;
 import org.greenplum.pxf.plugins.hive.utilities.HiveUtilities;
 
 import java.util.ArrayList;
@@ -155,7 +155,7 @@ public class HiveORCAccessor extends HiveAccessor implements StatsAccessor {
         /* Predicate push-down configuration */
         String filterStr = context.getFilterString();
 
-        HiveORCSearchArgumentBuilder searchArgumentBuilder = new HiveORCSearchArgumentBuilder(context.getTupleDescription(), configuration);
+        ORCSearchArgumentBuilder searchArgumentBuilder = new ORCSearchArgumentBuilder(context.getTupleDescription(), configuration);
 
         // Parse the filter string into a expression tree Node
         Node root = new FilterParser().parse(filterStr);
