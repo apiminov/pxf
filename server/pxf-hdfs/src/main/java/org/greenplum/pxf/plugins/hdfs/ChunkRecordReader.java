@@ -61,7 +61,6 @@ public class ChunkRecordReader implements
     private long start;
     private long pos;
     private long end;
-    private long fileLength;
     private ChunkReader in;
     private FSDataInputStream fileIn;
     private final Seekable filePosition;
@@ -116,7 +115,6 @@ public class ChunkRecordReader implements
         // openForWrite the file and seek to the start of the split
         final FileSystem fs = file.getFileSystem(job);
         fileIn = fs.open(file, ChunkReader.DEFAULT_BUFFER_SIZE);
-        fileLength = getInputStream().getFileLength();
         if (isCompressedInput()) {
             decompressor = CodecPool.getDecompressor(codec);
             if (codec instanceof SplittableCompressionCodec) {
@@ -218,7 +216,7 @@ public class ChunkRecordReader implements
 
             pos += newSize;
 
-            if (pos == fileLength) { /*
+            if (pos == end) { /*
                                       * in case text file last character is not
                                       * a linefeed
                                       */
